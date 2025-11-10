@@ -140,21 +140,21 @@ async def process_pending_command(chat_id, delay):
 
 
 async def skip_to_next_song(chat_id, message):
-    """Skips to the next song in the queue and starts playback."""
+    """Sıradaki şarkıya geçer ve çalmaya başlar."""
     if chat_id not in chat_containers or not chat_containers[chat_id]:
-        await message.edit("❌ No more songs in the queue.")
+        await message.edit("❌ Sırada başka şarkı yok.")
         await leave_voice_chat(chat_id)
         return
 
-    await message.edit("⏭ Skipping to the next song...")
+    await message.edit("⏭ Sonraki şarkıya geçiliyor...")
 
-    # Pick next song from queue
+    # Sıradaki şarkıyı seç
     next_song_info = chat_containers[chat_id][0]
     try:
         await fallback_local_playback(chat_id, message, next_song_info)
     except Exception as e:
         print(f"Error starting next local playback: {e}")
-        await bot.send_message(chat_id, f"❌ Failed to start next song: {e}")
+        await bot.send_message(chat_id, f"❌ Sonraki şarkı başlatılamadı: {e}")
 
 
 
@@ -208,7 +208,7 @@ async def extract_target_user(message: Message):
     # Otherwise expect an argument like "/ban @user" or "/ban 123456"
     parts = message.text.split()
     if len(parts) < 2:
-        await message.reply("❌ You must reply to a user or specify their @username/user_id.")
+        await message.reply("❌ Bir kullanıcıya yanıt vermeniz veya @kullanıcıadi/user_id belirtmeniz gerekiyor.")
         return None
 
     target = parts[1]
@@ -219,7 +219,7 @@ async def extract_target_user(message: Message):
         user = await message._client.get_users(target)
         return user.id
     except:
-        await message.reply("❌ Could not find that user.")
+        await message.reply("❌ Bu kullanıcı bulunamadı.")
         return None
 
 
@@ -264,7 +264,7 @@ def iso8601_to_human_readable(iso_duration):
             return f"{hours}:{minutes:02}:{seconds:02}"
         return f"{minutes}:{seconds:02}"
     except Exception as e:
-        return "Unknown duration"
+        return "Bilinmeyen süre"
 
 async def fetch_youtube_link(query):
     try:
@@ -323,28 +323,28 @@ from pyrogram.errors import UserAlreadyParticipant, RPCError
 
 async def invite_assistant(chat_id, invite_link, processing_message):
     """
-    Internally invite the assistant to the chat by using the assistant client to join the chat.
-    If the assistant is already in the chat, treat as success.
-    On other errors, display and return False.
+    Asistanı sohbete dahil etmek için asistan istemcisini kullanarak sohbete katılır.
+    Asistan zaten sohbet içindeyse başarılı olarak kabul edilir.
+    Diğer hatalarda görüntülenir ve False döndürülür.
     """
     try:
-        # Attempt to join via invite link
+        # Davet bağlantısı ile katılmayı dene
         await assistant.join_chat(invite_link)
         return True
 
     except UserAlreadyParticipant:
-        # Assistant is already in the chat, no further action needed
+        # Asistan zaten sohbet içinde, başka işlem gerekmez
         return True
 
     except RPCError as e:
-        # Handle other Pyrogram RPC errors
-        error_message = f"❌ Error while inviting assistant: Telegram says: {e.code} {e.error_message}"
+        # Diğer Pyrogram RPC hatalarını işle
+        error_message = f"❌ Asistan davet edilirken hata: Telegram diyor ki: {e.code} {e.error_message}"
         await processing_message.edit(error_message)
         return False
 
     except Exception as e:
-        # Catch-all for any unexpected exceptions
-        error_message = f"❌ Unexpected error while inviting assistant: {str(e)}"
+        # Beklenmeyen istisnalar için genel yakalama
+        error_message = f"❌ Asistan davet edilirken beklenmeyen hata: {str(e)}"
         await processing_message.edit(error_message)
         return False
 
@@ -368,10 +368,10 @@ async def start_handler(_, message):
     styled_name = to_bold_unicode(raw_name)
     user_link = f"[{styled_name}](tg://user?id={user_id})"
 
-    add_me_text = to_bold_unicode("Add Me")
-    updates_text = to_bold_unicode("Updates")
-    support_text = to_bold_unicode("Support")
-    help_text = to_bold_unicode("Help")
+    add_me_text = to_bold_unicode("Beni Ekle")
+    updates_text = to_bold_unicode("Güncellemeler")
+    support_text = to_bold_unicode("Destek")
+    help_text = to_bold_unicode("Yardım")
 
     # Fetch from env with fallbacks
     updates_channel = os.getenv("UPDATES_CHANNEL", "https://t.me/vibeshiftbots")
@@ -382,15 +382,15 @@ async def start_handler(_, message):
     )
 
     caption = (
-        f"👋 нєу {user_link} 💠, 🥀\n\n"
-        f">🎶 𝗪𝗘𝗟𝗖𝗢𝗠𝗘 𝗧𝗢 {BOT_NAME.upper()}! 🎵\n"
-        ">🚀 𝗧𝗢𝗣-𝗡𝗢𝗧𝗖𝗛 24×7 𝗨𝗣𝗧𝗜𝗠𝗘 & 𝗦𝗨𝗣𝗣𝗢𝗥𝗧\n"
-        ">🔊 𝗖𝗥𝗬𝗦𝗧𝗔𝗟-𝗖𝗟𝗘𝗔𝗥 𝗔𝗨𝗗𝗜𝗢\n"
-        ">🎧 𝗦𝗨𝗣𝗣𝗢𝗥𝗧𝗘𝗗 𝗣𝗟𝗔𝗧𝗙𝗢𝗥𝗠𝗦: YouTube | Spotify | Resso | Apple Music | SoundCloud\n"
-        ">✨ 𝗔𝗨𝗧𝗢-𝗦𝗨𝗚𝗚𝗘𝗦𝗧𝗜𝗢𝗡𝗦 when queue ends\n"
-        ">🛠️ 𝗔𝗗𝗠𝗜𝗡 𝗖𝗢𝗠𝗠𝗔𝗡𝗗𝗦: Pause, Resume, Skip, Stop, Mute, Unmute, Tmute, Kick, Ban, Unban, Couple\n"
-        ">❤️ 𝗖𝗢𝗨𝗣𝗟𝗘 𝗦𝗨𝗚𝗚𝗘𝗦𝗧𝗜𝗢𝗡 (pick random pair in group)\n"
-        f"๏ ᴄʟɪᴄᴋ {help_text} ʙᴇʟᴏᴡ ғᴏʀ ᴄᴏᴍᴍᴀɴᴅ ʟɪsᴛ."
+        f"👋 Merhaba {user_link} 💠, 🥀\n\n"
+        f">🎶 {BOT_NAME.upper()} MÜZİK BOTUNA HOŞ GELDİN! 🎵\n"
+        ">🚀 7/24 AKTİF & YÜKSEK KALİTE DESTEĞİ\n"
+        ">🔊 KRISTAL BERRAKLIĞINDA SES KALİTESİ\n"
+        ">🎧 DESTEKLENEN PLATFORMLAR: YouTube | Spotify | Resso | Apple Music | SoundCloud\n"
+        ">✨ SIRA BİTTİĞİNDE OTOMATİK ÖNERİLER\n"
+        ">🛠️ YÖNETİCİ KOMUTLARI: Duraklat, Devam Et, Geç, Durdur, Sustur, Susturmayı Kaldır, Geçici Sustur, At, Yasakla, Yasak Kaldır, Çift\n"
+        ">❤️ ÇİFT ÖNERİSİ (grupta rastgele iki kişi seçer)\n"
+        f"๏ Komut listesi için aşağıdaki {help_text} butonuna tıkla."
     )
 
     buttons = [
@@ -431,24 +431,24 @@ async def go_back_callback(_, callback_query):
     styled_name = to_bold_unicode(raw_name)
     user_link = f"[{styled_name}](tg://user?id={user_id})"
 
-    add_me_text = to_bold_unicode("Add Me")
-    updates_text = to_bold_unicode("Updates")
-    support_text = to_bold_unicode("Support")
-    help_text = to_bold_unicode("Help")
+    add_me_text = to_bold_unicode("Beni Ekle")
+    updates_text = to_bold_unicode("Güncellemeler")
+    support_text = to_bold_unicode("Destek")
+    help_text = to_bold_unicode("Yardım")
 
     updates_channel = os.getenv("UPDATES_CHANNEL", "https://t.me/vibeshiftbots")
     support_group = os.getenv("SUPPORT_GROUP", "https://t.me/Frozensupport1")
 
     caption = (
-        f"👋 нєу {user_link} 💠, 🥀\n\n"
-        f">🎶 𝗪𝗘𝗟𝗖𝗢𝗠𝗘 𝗧𝗢 {BOT_NAME.upper()}! 🎵\n"
-        ">🚀 𝗧𝗢𝗣-𝗡𝗢𝗧𝗖𝗛 24×7 𝗨𝗣𝗧𝗜𝗠𝗘 & 𝗦𝗨𝗣𝗣𝗢𝗥𝗧\n"
-        ">🔊 𝗖𝗥𝗬𝗦𝗧𝗔𝗟-𝗖𝗟𝗘𝗔𝗥 𝗔𝗨𝗗𝗜𝗢\n"
-        ">🎧 𝗦𝗨𝗣𝗣𝗢𝗥𝗧𝗘𝗗 𝗣𝗟𝗔𝗧𝗙𝗢𝗥𝗠𝗦: YouTube | Spotify | Resso | Apple Music | SoundCloud\n"
-        ">✨ 𝗔𝗨𝗧𝗢-𝗦𝗨𝗚𝗚𝗘𝗦𝗧𝗜𝗢𝗡𝗦 when queue ends\n"
-        ">🛠️ 𝗔𝗗𝗠𝗜𝗡 𝗖𝗢𝗠𝗠𝗔𝗡𝗗𝗦: Pause, Resume, Skip, Stop, Mute, Unmute, Tmute, Kick, Ban, Unban, Couple\n"
-        ">❤️ 𝗖𝗢𝗨𝗣𝗟𝗘 (pick random pair in group)\n"
-        f"๏ ᴄʟɪᴄᴋ {help_text} ʙᴇʟᴏᴡ ғᴏʀ ᴄᴏᴍᴍᴀɴᴅ ʟɪsᴛ."
+        f"👋 Merhaba {user_link} 💠, 🥀\n\n"
+        f">🎶 {BOT_NAME.upper()} MÜZİK BOTUNA HOŞ GELDİN! 🎵\n"
+        ">🚀 7/24 AKTİF & YÜKSEK KALİTE DESTEĞİ\n"
+        ">🔊 KRISTAL BERRAKLIĞINDA SES KALİTESİ\n"
+        ">🎧 DESTEKLENEN PLATFORMLAR: YouTube | Spotify | Resso | Apple Music | SoundCloud\n"
+        ">✨ SIRA BİTTİĞİNDE OTOMATİK ÖNERİLER\n"
+        ">🛠️ YÖNETİCİ KOMUTLARI: Duraklat, Devam Et, Geç, Durdur, Sustur, Susturmayı Kaldır, Geçici Sustur, At, Yasakla, Yasak Kaldır, Çift\n"
+        ">❤️ ÇİFT ÖNERİSİ (grupta rastgele iki kişi seçer)\n"
+        f"๏ Komut listesi için aşağıdaki {help_text} butonuna tıkla."
     )
 
     buttons = [
@@ -472,18 +472,18 @@ async def go_back_callback(_, callback_query):
 
 @bot.on_callback_query(filters.regex("^show_help$"))
 async def show_help_callback(_, callback_query):
-    help_text = ">📜 *Choose a category to explore commands:*"
+    help_text = ">📜 *Komutları keşfetmek için bir kategori seç:*"
     buttons = [
         [
-            InlineKeyboardButton("🎵 Music Controls", callback_data="help_music"),
-            InlineKeyboardButton("🛡️ Admin Tools", callback_data="help_admin")
+            InlineKeyboardButton("🎵 Müzik Kontrolleri", callback_data="help_music"),
+            InlineKeyboardButton("🛡️ Yönetici Araçları", callback_data="help_admin")
         ],
         [
-            InlineKeyboardButton("❤️ Couple Suggestion", callback_data="help_couple"),
-            InlineKeyboardButton("🔍 Utility", callback_data="help_util")
+            InlineKeyboardButton("❤️ Çift Önerisi", callback_data="help_couple"),
+            InlineKeyboardButton("🔍 Yardımcı Araçlar", callback_data="help_util")
         ],
         [
-            InlineKeyboardButton("🏠 Home", callback_data="go_back")
+            InlineKeyboardButton("🏠 Ana Sayfa", callback_data="go_back")
         ]
     ]
     reply_markup = InlineKeyboardMarkup(buttons)
@@ -493,73 +493,73 @@ async def show_help_callback(_, callback_query):
 @bot.on_callback_query(filters.regex("^help_music$"))
 async def help_music_callback(_, callback_query):
     text = (
-        ">🎵 *Music & Playback Commands*\n\n"
-        ">➜ `/play <song name or URL>`\n"
-        "   • Play a song (YouTube/Spotify/Resso/Apple Music/SoundCloud).\n"
-        "   • If replied to an audio/video, plays it directly.\n\n"
+        ">🎵 *Müzik & Çalma Komutları*\n\n"
+        ">➜ `/play <şarkı adı veya URL>`\n"
+        "   • Bir şarkı çalar (YouTube/Spotify/Resso/Apple Music/SoundCloud).\n"
+        "   • Bir ses/videoya yanıt verilirse, doğrudan onu çalar.\n\n"
         ">➜ `/playlist`\n"
-        "   • View or manage your saved playlist.\n\n"
+        "   • Kayıtlı çalma listenizi görüntüleyin veya yönetin.\n\n"
         ">➜ `/skip`\n"
-        "   • Skip the currently playing song. (Admins only)\n\n"
+        "   • Şu anda çalan şarkıyı geçer. (Sadece Yöneticiler)\n\n"
         ">➜ `/pause`\n"
-        "   • Pause the current stream. (Admins only)\n\n"
+        "   • Geçerli akışı duraklatır. (Sadece Yöneticiler)\n\n"
         ">➜ `/resume`\n"
-        "   • Resume a paused stream. (Admins only)\n\n"
-        ">➜ `/stop` or `/end`\n"
-        "   • Stop playback and clear the queue. (Admins only)"
+        "   • Duraklatılmış bir akışı devam ettirir. (Sadece Yöneticiler)\n\n"
+        ">➜ `/stop` veya `/end`\n"
+        "   • Çalmayı durdurur ve sırayı temizler. (Sadece Yöneticiler)"
     )
-    buttons = [[InlineKeyboardButton("🔙 Back", callback_data="show_help")]]
+    buttons = [[InlineKeyboardButton("🔙 Geri", callback_data="show_help")]]
     await callback_query.message.edit_text(text, parse_mode=ParseMode.MARKDOWN, reply_markup=InlineKeyboardMarkup(buttons))
 
 
 @bot.on_callback_query(filters.regex("^help_admin$"))
 async def help_admin_callback(_, callback_query):
     text = (
-        "🛡️ *Admin & Moderation Commands*\n\n"
-        ">➜ `/mute @user`\n"
-        "   • Mute a user indefinitely. (Admins only)\n\n"
-        ">➜ `/unmute @user`\n"
-        "   • Unmute a previously muted user. (Admins only)\n\n"
-        ">➜ `/tmute @user <minutes>`\n"
-        "   • Temporarily mute for a set duration. (Admins only)\n\n"
-        ">➜ `/kick @user`\n"
-        "   • Kick (ban + unban) a user immediately. (Admins only)\n\n"
-        ">➜ `/ban @user`\n"
-        "   • Ban a user. (Admins only)\n\n"
-        ">➜ `/unban @user`\n"
-        "   • Unban a previously banned user. (Admins only)"
+        "🛡️ *Yönetici & Moderatör Komutları*\n\n"
+        ">➜ `/mute @kullanıcı`\n"
+        "   • Bir kullanıcıyı süresiz olarak susturur. (Sadece Yöneticiler)\n\n"
+        ">➜ `/unmute @kullanıcı`\n"
+        "   • Daha önce susturulmuş bir kullanıcının susturmasını kaldırır. (Sadece Yöneticiler)\n\n"
+        ">➜ `/tmute @kullanıcı <dakika>`\n"
+        "   • Belirli bir süre için geçici olarak susturur. (Sadece Yöneticiler)\n\n"
+        ">➜ `/kick @kullanıcı`\n"
+        "   • Bir kullanıcıyı anında atar (yasaklar ve yasağı kaldırır). (Sadece Yöneticiler)\n\n"
+        ">➜ `/ban @kullanıcı`\n"
+        "   • Bir kullanıcıyı yasaklar. (Sadece Yöneticiler)\n\n"
+        ">➜ `/unban @kullanıcı`\n"
+        "   • Daha önce yasaklanmış bir kullanıcının yasağını kaldırır. (Sadece Yöneticiler)"
     )
-    buttons = [[InlineKeyboardButton("🔙 Back", callback_data="show_help")]]
+    buttons = [[InlineKeyboardButton("🔙 Geri", callback_data="show_help")]]
     await callback_query.message.edit_text(text, parse_mode=ParseMode.MARKDOWN, reply_markup=InlineKeyboardMarkup(buttons))
 
 
 @bot.on_callback_query(filters.regex("^help_couple$"))
 async def help_couple_callback(_, callback_query):
     text = (
-        "❤️ *Couple Suggestion Command*\n\n"
+        "❤️ *Çift Önerisi Komutu*\n\n"
         ">➜ `/couple`\n"
-        "   • Picks two random non-bot members and posts a “couple” image with their names.\n"
-        "   • Caches daily so the same pair appears until midnight UTC.\n"
-        "   • Uses per-group member cache for speed."
+        "   • Rastgele iki bot olmayan üye seçer ve isimleriyle bir \"çift\" resmi paylaşır.\n"
+        "   • Günlük olarak önbelleğe alır, böylece aynı çift UTC gece yarısına kadar görünür.\n"
+        "   • Hız için grup bazlı üye önbelleği kullanır."
     )
-    buttons = [[InlineKeyboardButton("🔙 Back", callback_data="show_help")]]
+    buttons = [[InlineKeyboardButton("🔙 Geri", callback_data="show_help")]]
     await callback_query.message.edit_text(text, parse_mode=ParseMode.MARKDOWN, reply_markup=InlineKeyboardMarkup(buttons))
 
 
 @bot.on_callback_query(filters.regex("^help_util$"))
 async def help_util_callback(_, callback_query):
     text = (
-        "🔍 *Utility & Extra Commands*\n\n"
+        "🔍 *Yardımcı & Ekstra Komutlar*\n\n"
         ">➜ `/ping`\n"
-        "   • Check bot’s response time and uptime.\n\n"
+        "   • Botun yanıt süresini ve çalışma süresini kontrol eder.\n\n"
         ">➜ `/clear`\n"
-        "   • Clear the entire queue. (Admins only)\n\n"
-        ">➜ Auto-Suggestions:\n"
-        "   • When the queue ends, the bot automatically suggests new songs via inline buttons.\n\n"
-        ">➜ *Audio Quality & Limits*\n"
-        "   • Streams up to 2 hours 10 minutes, but auto-fallback for longer. (See `MAX_DURATION_SECONDS`)\n"
+        "   • Tüm sırayı temizler. (Sadece Yöneticiler)\n\n"
+        ">➜ Otomatik Öneriler:\n"
+        "   • Sıra bittiğinde, bot otomatik olarak yeni şarkıları inline butonlar aracılığıyla önerir.\n\n"
+        ">➜ *Ses Kalitesi & Limitler*\n"
+        "   • 2 saat 10 dakikaya kadar akış, ancak daha uzun süreliler için otomatik yedekleme. (`MAX_DURATION_SECONDS`'a bakın)\n"
     )
-    buttons = [[InlineKeyboardButton("🔙 Back", callback_data="show_help")]]
+    buttons = [[InlineKeyboardButton("🔙 Geri", callback_data="show_help")]]
     await callback_query.message.edit_text(text, parse_mode=ParseMode.MARKDOWN, reply_markup=InlineKeyboardMarkup(buttons))
 
 
@@ -576,14 +576,14 @@ async def play_handler(_, message: Message):
         fresh = await bot.get_messages(orig.chat.id, orig.id)
         media = fresh.video or fresh.audio
         if fresh.audio and getattr(fresh.audio, 'file_size', 0) > 100 * 1024 * 1024:
-            await processing_message.edit("❌ Audio file too large. Maximum allowed size is 100MB.")
+            await processing_message.edit("❌ Ses dosyası çok büyük. Maksimum izin verilen boyut 100MB.")
             return
 
-        await processing_message.edit("⏳ Please wait, downloading audio…")
+        await processing_message.edit("⏳ Lütfen bekleyin, ses indiriliyor…")
         try:
             file_path = await bot.download_media(media)
         except Exception as e:
-            await processing_message.edit(f"❌ Failed to download media: {e}")
+            await processing_message.edit(f"❌ Medya indirilemedi: {e}")
             return
 
         # Download thumbnail if available
@@ -596,7 +596,7 @@ async def play_handler(_, message: Message):
 
         # Prepare song_info and fallback to local playback
         duration = media.duration or 0
-        title = getattr(media, 'file_name', 'Untitled')
+        title = getattr(media, 'file_name', 'İsimsiz')
         song_info = {
             'url': file_path,
             'title': title,
@@ -622,9 +622,9 @@ async def play_handler(_, message: Message):
     if chat_id in chat_last_command and (now_ts - chat_last_command[chat_id]) < COOLDOWN:
         remaining = int(COOLDOWN - (now_ts - chat_last_command[chat_id]))
         if chat_id in chat_pending_commands:
-            await bot.send_message(chat_id, f"⏳ A command is already queued for this chat. Please wait {remaining}s.")
+            await bot.send_message(chat_id, f"⏳ Bu sohbet için zaten bir komut sırada. Lütfen {remaining}s bekleyin.")
         else:
-            cooldown_reply = await bot.send_message(chat_id, f"⏳ On cooldown. Processing in {remaining}s.")
+            cooldown_reply = await bot.send_message(chat_id, f"⏳ Bekleme süresinde. {remaining}s içinde işlenecek.")
             chat_pending_commands[chat_id] = (message, cooldown_reply)
             asyncio.create_task(process_pending_command(chat_id, remaining))
         return
@@ -633,8 +633,8 @@ async def play_handler(_, message: Message):
     if not query:
         await bot.send_message(
             chat_id,
-            "❌ You did not specify a song.\n\n"
-            "Correct usage: /play <song name>\nExample: /play shape of you"
+            "❌ Bir şarkı belirtmediniz.\n\n"
+            "Doğru kullanım: /play <şarkı adı>\nÖrnek: /play shape of you"
         )
         return
 
@@ -650,13 +650,13 @@ async def process_play_command(message: Message, query: str):
     # --- ensure assistant is in the chat before we queue/play anything ----
     status = await is_assistant_in_chat(chat_id)
     if status == "banned":
-        await processing_message.edit("❌ Assistant is banned from this chat.")
+        await processing_message.edit("❌ Asistan bu gruptan yasaklanmış.")
         return
     if status is False:
         # try to fetch an invite link to add the assistant
         invite_link = await extract_invite_link(bot, chat_id)
         if not invite_link:
-            await processing_message.edit("❌ Could not obtain an invite link to add the assistant.")
+            await processing_message.edit("❌ Asistanı eklemek için bir davet bağlantısı alınamadı.")
             return
         invited = await invite_assistant(chat_id, invite_link, processing_message)
         if not invited:
@@ -674,15 +674,15 @@ async def process_play_command(message: Message, query: str):
         result = await fetch_youtube_link(query)
     except Exception as primary_err:
         await processing_message.edit(
-            "⚠️ Primary search failed. Using backup API, this may take a few seconds…"
+            "⚠️ Birincil arama başarısız. Yedek API kullanılıyor, bu birkaç saniye sürebilir…"
         )
         try:
             result = await fetch_youtube_link_backup(query)
         except Exception as backup_err:
             await processing_message.edit(
-                f"❌ Both search APIs failed:\n"
-                f"Primary: {primary_err}\n"
-                f"Backup:  {backup_err}"
+                f"❌ Her iki arama API'si de başarısız:\n"
+                f"Birincil: {primary_err}\n"
+                f"Yedek:  {backup_err}"
             )
             return
 
@@ -690,7 +690,7 @@ async def process_play_command(message: Message, query: str):
     if isinstance(result, dict) and "playlist" in result:
         playlist_items = result["playlist"]
         if not playlist_items:
-            await processing_message.edit("❌ No videos found in the playlist.")
+            await processing_message.edit("❌ Çalma listesinde video bulunamadı.")
             return
 
         chat_containers.setdefault(chat_id, [])
@@ -701,14 +701,14 @@ async def process_play_command(message: Message, query: str):
                 "title": item["title"],
                 "duration": iso8601_to_human_readable(item["duration"]),
                 "duration_seconds": secs,
-                "requester": message.from_user.first_name if message.from_user else "Unknown",
+                "requester": message.from_user.first_name if message.from_user else "Bilinmeyen",
                 "thumbnail": item["thumbnail"]
             })
 
         total = len(playlist_items)
         reply_text = (
-            f"✨ Added to playlist\n"
-            f"Total songs added to queue: {total}\n"
+            f"✨ Çalma listesine eklendi\n"
+            f"Kuyruğa eklenen toplam şarkı: {total}\n"
             f"#1 - {playlist_items[0]['title']}"
         )
         if total > 1:
@@ -726,14 +726,14 @@ async def process_play_command(message: Message, query: str):
         video_url, title, duration_iso, thumb = result
         if not video_url:
             await processing_message.edit(
-                "❌ Could not find the song. Try another query.\nSupport: @frozensupport1"
+                "❌ Şarkı bulunamadı. Başka bir sorgu deneyin.\nDestek: @frozensupport1"
             )
             return
 
         secs = isodate.parse_duration(duration_iso).total_seconds()
         if secs > MAX_DURATION_SECONDS:
             await processing_message.edit(
-                "❌ Streams longer than 8 min are not allowed. If u are the owner of this bot contact @xyz09723 to upgrade your plan"
+                "❌ 8 dakikadan uzun akışlara izin verilmiyor. Bu botun sahibiyseniz, planınızı yükseltmek için @xyz09723 ile iletişime geçin"
             )
             return
 
@@ -744,7 +744,7 @@ async def process_play_command(message: Message, query: str):
             "title": title,
             "duration": readable,
             "duration_seconds": secs,
-            "requester": message.from_user.first_name if message.from_user else "Unknown",
+            "requester": message.from_user.first_name if message.from_user else "Bilinmeyen",
             "thumbnail": thumb
         })
 
@@ -753,15 +753,15 @@ async def process_play_command(message: Message, query: str):
             await fallback_local_playback(chat_id, processing_message, chat_containers[chat_id][0])
         else:
             queue_buttons = InlineKeyboardMarkup([
-                [InlineKeyboardButton("⏭ Skip", callback_data="skip"),
-                 InlineKeyboardButton("🗑 Clear", callback_data="clear")]
+                [InlineKeyboardButton("⏭ Geç", callback_data="skip"),
+                 InlineKeyboardButton("🗑 Temizle", callback_data="clear")]
             ])
             await message.reply(
-                f"✨ Added to queue :\n\n"
-                f"**❍ Title ➥** {title}\n"
-                f"**❍ Time ➥** {readable}\n"
-                f"**❍ By ➥ ** {message.from_user.first_name if message.from_user else 'Unknown'}\n"
-                f"**Queue number:** {len(chat_containers[chat_id]) - 1}",
+                f"✨ Sıraya eklendi :\n\n"
+                f"**❍ Başlık ➥** {title}\n"
+                f"**❍ Süre ➥** {readable}\n"
+                f"**❍ İsteyen ➥ ** {message.from_user.first_name if message.from_user else 'Bilinmeyen'}\n"
+                f"**Sıra numarası:** {len(chat_containers[chat_id]) - 1}",
                 reply_markup=queue_buttons
             )
             await processing_message.delete()
@@ -774,7 +774,7 @@ MAX_TITLE_LEN = 20
 def _one_line_title(full_title: str) -> str:
     """
     Truncate `full_title` to at most MAX_TITLE_LEN chars.
-    If truncated, append “…” so it still reads cleanly in one line.
+    If truncated, append "…" so it still reads cleanly in one line.
     """
     if len(full_title) <= MAX_TITLE_LEN:
         return full_title
@@ -826,7 +826,7 @@ def get_progress_bar_styled(elapsed: float, total: float, bar_length: int = 14) 
     For example: 0:30 —❄️———— 3:09
     """
     if total <= 0:
-        return "Progress: N/A"
+        return "İlerleme: Yok"
     fraction = min(elapsed / total, 1)
     marker_index = int(fraction * bar_length)
     if marker_index >= bar_length:
@@ -862,7 +862,7 @@ async def update_progress_caption(
             InlineKeyboardButton(text="▢", callback_data="stop")
         ]
         progress_button = InlineKeyboardButton(text=progress_bar, callback_data="progress")
-        playlist_button = InlineKeyboardButton(text="➕ᴀᴅᴅ тσ ρℓαυℓιѕт➕", callback_data="add_to_playlist")
+        playlist_button = InlineKeyboardButton(text="➕ Çalma Listesine Ekle ➕", callback_data="add_to_playlist")
 
         new_keyboard = InlineKeyboardMarkup([
             control_row,
@@ -910,11 +910,11 @@ async def fallback_local_playback(chat_id: int, message: Message, song_info: dic
 
         # Notify
         try:
-            await message.edit(f"Starting local playback for ⚡ {song_info['title']}...")
+            await message.edit(f"⚡ {song_info['title']} için yerel çalma başlatılıyor...")
         except Exception:
             message = await bot.send_message(
                 chat_id,
-                f"Starting local playback for ⚡ {song_info['title']}..."
+                f"⚡ {song_info['title']} için yerel çalma başlatılıyor..."
             )
 
         # Download & play locally
@@ -930,9 +930,9 @@ async def fallback_local_playback(chat_id: int, message: Message, song_info: dic
         one_line = _one_line_title(song_info["title"])
         base_caption = (
             "<blockquote>"
-            "<b>🎧 Frozen ✘ Music Streaming</b> (Local Playback)\n\n"
-            f"❍ <b>Title:</b> {one_line}\n"
-            f"❍ <b>Requested by:</b> {song_info['requester']}"
+            "<b>🎧 Frozen ✘ Music Akışı</b> (Yerel Çalma)\n\n"
+            f"❍ <b>Başlık:</b> {one_line}\n"
+            f"❍ <b>İsteyen:</b> {song_info['requester']}"
             "</blockquote>"
         )
         initial_progress = get_progress_bar_styled(0, total_duration)
@@ -973,11 +973,11 @@ async def fallback_local_playback(chat_id: int, message: Message, song_info: dic
         asyncio.create_task(
             bot.send_message(
                 LOG_CHAT_ID,
-                "#started_streaming\n"
-                f"• Title: {song_info.get('title','Unknown')}\n"
-                f"• Duration: {song_info.get('duration','Unknown')}\n"
-                f"• Requested by: {song_info.get('requester','Unknown')}\n"
-                f"• Mode: local"
+                "#akış_başlatıldı\n"
+                f"• Başlık: {song_info.get('title','Bilinmeyen')}\n"
+                f"• Süre: {song_info.get('duration','Bilinmeyen')}\n"
+                f"• İsteyen: {song_info.get('requester','Bilinmeyen')}\n"
+                f"• Mod: yerel"
             )
         )
 
@@ -985,7 +985,7 @@ async def fallback_local_playback(chat_id: int, message: Message, song_info: dic
         print(f"Error during fallback local playback in chat {chat_id}: {e}")
         await bot.send_message(
             chat_id,
-            f"❌ Failed to play “{song_info.get('title','Unknown')}” locally: {e}"
+            f"❌ \"{song_info.get('title','Bilinmeyen')}\" yerel olarak çalınamadı: {e}"
         )
 
         if chat_id in chat_containers and chat_containers[chat_id]:
@@ -1003,26 +1003,26 @@ async def callback_query_handler(client, callback_query):
 
     # Check admin
     if not await deterministic_privilege_validator(callback_query):
-        await callback_query.answer("❌ You need to be an admin to use this button.", show_alert=True)
+        await callback_query.answer("❌ Bu butonu kullanmak için yönetici olmanız gerekiyor.", show_alert=True)
         return
 
     # ----------------- PAUSE -----------------
     if data == "pause":
         try:
             await call_py.pause(chat_id)
-            await callback_query.answer("⏸ Playback paused.")
-            await client.send_message(chat_id, f"⏸ Playback paused by {user.first_name}.")
+            await callback_query.answer("⏸ Çalma duraklatıldı.")
+            await client.send_message(chat_id, f"⏸ Çalma {user.first_name} tarafından duraklatıldı.")
         except Exception as e:
-            await callback_query.answer("❌ Error pausing playback.", show_alert=True)
+            await callback_query.answer("❌ Çalma duraklatılırken hata oluştu.", show_alert=True)
 
     # ----------------- RESUME -----------------
     elif data == "resume":
         try:
             await call_py.resume(chat_id)
-            await callback_query.answer("▶️ Playback resumed.")
-            await client.send_message(chat_id, f"▶️ Playback resumed by {user.first_name}.")
+            await callback_query.answer("▶️ Çalma devam ettirildi.")
+            await client.send_message(chat_id, f"▶️ Çalma {user.first_name} tarafından devam ettirildi.")
         except Exception as e:
-            await callback_query.answer("❌ Error resuming playback.", show_alert=True)
+            await callback_query.answer("❌ Çalma devam ettirilirken hata oluştu.", show_alert=True)
 
     # ----------------- SKIP -----------------
     elif data == "skip":
@@ -1040,24 +1040,24 @@ async def callback_query_handler(client, callback_query):
             except Exception as e:
                 print(f"Error deleting file: {e}")
 
-            await client.send_message(chat_id, f"⏩ {user.first_name} skipped **{skipped_song['title']}**.")
+            await client.send_message(chat_id, f"⏩ {user.first_name} **{skipped_song['title']}** şarkısını geçti.")
 
             if chat_id in chat_containers and chat_containers[chat_id]:
-                await callback_query.answer("⏩ Skipped! Playing next song...")
+                await callback_query.answer("⏩ Geçildi! Sonraki şarkı çalınıyor...")
 
                 # Play next song directly using fallback_local_playback
                 next_song_info = chat_containers[chat_id][0]
                 try:
-                    dummy_msg = await bot.send_message(chat_id, f"🎧 Preparing next song: **{next_song_info['title']}** ...")
+                    dummy_msg = await bot.send_message(chat_id, f"🎧 Sonraki şarkı hazırlanıyor: **{next_song_info['title']}** ...")
                     await fallback_local_playback(chat_id, dummy_msg, next_song_info)
                 except Exception as e:
                     print(f"Error starting next local playback: {e}")
-                    await bot.send_message(chat_id, f"❌ Failed to start next song: {e}")
+                    await bot.send_message(chat_id, f"❌ Sonraki şarkı başlatılamadı: {e}")
 
             else:
-                await callback_query.answer("⏩ Skipped! No more songs in the queue.")
+                await callback_query.answer("⏩ Geçildi! Sırada başka şarkı yok.")
         else:
-            await callback_query.answer("❌ No songs in the queue to skip.", show_alert=True)
+            await callback_query.answer("❌ Geçilecek şarkı yok.", show_alert=True)
 
     # ----------------- CLEAR -----------------
     elif data == "clear":
@@ -1068,10 +1068,10 @@ async def callback_query_handler(client, callback_query):
                 except Exception as e:
                     print(f"Error deleting file: {e}")
             chat_containers.pop(chat_id)
-            await callback_query.message.edit("🗑️ Cleared the queue.")
-            await callback_query.answer("🗑️ Cleared the queue.")
+            await callback_query.message.edit("🗑️ Sıra temizlendi.")
+            await callback_query.answer("🗑️ Sıra temizlendi.")
         else:
-            await callback_query.answer("❌ No songs in the queue to clear.", show_alert=True)
+            await callback_query.answer("❌ Temizlenecek şarkı yok.", show_alert=True)
 
     # ----------------- STOP -----------------
     elif data == "stop":
@@ -1085,11 +1085,11 @@ async def callback_query_handler(client, callback_query):
 
         try:
             await call_py.leave_call(chat_id)
-            await callback_query.answer("🛑 Playback stopped and queue cleared.")
-            await client.send_message(chat_id, f"🛑 Playback stopped and queue cleared by {user.first_name}.")
+            await callback_query.answer("🛑 Çalma durduruldu ve sıra temizlendi.")
+            await client.send_message(chat_id, f"🛑 Çalma durduruldu ve sıra {user.first_name} tarafından temizlendi.")
         except Exception as e:
             print("Stop error:", e)
-            await callback_query.answer("❌ Error stopping playback.", show_alert=True)
+            await callback_query.answer("❌ Çalma durdurulurken hata oluştu.", show_alert=True)
 
 
 
@@ -1113,19 +1113,19 @@ async def stream_end_handler(_: PyTgCalls, update: StreamEnded):
             next_song_info = chat_containers[chat_id][0]
             try:
                 # Create a fake message object to pass
-                dummy_msg = await bot.send_message(chat_id, f"🎧 Preparing next song: **{next_song_info['title']}** ...")
+                dummy_msg = await bot.send_message(chat_id, f"🎧 Sonraki şarkı hazırlanıyor: **{next_song_info['title']}** ...")
                 await fallback_local_playback(chat_id, dummy_msg, next_song_info)
             except Exception as e:
                 print(f"Error starting next local playback: {e}")
-                await bot.send_message(chat_id, f"❌ Failed to start next song: {e}")
+                await bot.send_message(chat_id, f"❌ Sonraki şarkı başlatılamadı: {e}")
         else:
             # Queue empty; leave VC
             await leave_voice_chat(chat_id)
-            await bot.send_message(chat_id, "❌ No more songs in the queue.")
+            await bot.send_message(chat_id, "❌ Sırada başka şarkı yok.")
     else:
         # No songs in the queue
         await leave_voice_chat(chat_id)
-        await bot.send_message(chat_id, "❌ No more songs in the queue.")
+        await bot.send_message(chat_id, "❌ Sırada başka şarkı yok.")
 
 
 
@@ -1133,7 +1133,7 @@ async def leave_voice_chat(chat_id):
     try:
         await call_py.leave_call(chat_id)
     except Exception as e:
-        print(f"Error leaving the voice chat: {e}")
+        print(f"Sesli sohbetten ayrılırken hata: {e}")
 
     if chat_id in chat_containers:
         for song in chat_containers[chat_id]:
@@ -1155,16 +1155,16 @@ async def stop_handler(client, message):
 
     # Check admin rights
     if not await deterministic_privilege_validator(message):
-        await message.reply("❌ You need to be an admin to use this command.")
+        await message.reply("❌ Bu komutu kullanmak için yönetici olmanız gerekiyor.")
         return
 
     try:
         await call_py.leave_call(chat_id)
     except Exception as e:
         if "not in a call" in str(e).lower():
-            await message.reply("❌ The bot is not currently in a voice chat.")
+            await message.reply("❌ Bot şu anda bir sesli sohbet içinde değil.")
         else:
-            await message.reply(f"❌ An error occurred while leaving the voice chat: {str(e)}\n\nSupport: @frozensupport1")
+            await message.reply(f"❌ Sesli sohbetten ayrılırken bir hata oluştu: {str(e)}\n\nDestek: @frozensupport1")
         return
 
     # Clear the song queue
@@ -1181,18 +1181,18 @@ async def stop_handler(client, message):
         playback_tasks[chat_id].cancel()
         del playback_tasks[chat_id]
 
-    await message.reply("⏹ Stopped the music and cleared the queue.")
+    await message.reply("⏹ Müzik durduruldu ve sıra temizlendi.")
 
 
 @bot.on_message(filters.command("song"))
 async def song_command_handler(_, message):
     keyboard = InlineKeyboardMarkup(
-        [[InlineKeyboardButton("🎶 Download Now", url="https://t.me/songdownloader1bot?start=true")]]
+        [[InlineKeyboardButton("🎶 Şimdi İndir", url="https://t.me/songdownloader1bot?start=true")]]
     )
     text = (
-        "ᴄʟɪᴄᴋ ᴛʜᴇ ʙᴜᴛᴛᴏɴ ʙᴇʟᴏᴡ ᴛᴏ ᴜsᴇ ᴛʜᴇ sᴏɴɢ ᴅᴏᴡɴʟᴏᴀᴅᴇʀ ʙᴏᴛ. 🎵\n\n"
-        "ʏᴏᴜ ᴄᴀɴ sᴇɴᴅ ᴛʜᴇ sᴏɴɢ ɴᴀᴍᴇ ᴏʀ ᴀɴʏ ǫᴜᴇʀʏ ᴅɪʀᴇᴄᴛʟʏ ᴛᴏ ᴛʜᴇ ᴅᴏᴡɴʟᴏᴀᴅᴇʀ ʙᴏᴛ, ⬇️\n\n"
-        "ᴀɴᴅ ɪᴛ ᴡɪʟʟ ғᴇᴛᴄʜ ᴀɴᴅ ᴅᴏᴡɴʟᴏᴀᴅ ᴛʜᴇ sᴏɴɢ ғᴏʀ ʏᴏᴜ. 🚀"
+        "Şarkı indirici botu kullanmak için aşağıdaki butona tıklayın. 🎵\n\n"
+        "Şarkı adını veya herhangi bir sorguyu doğrudan indirici bota gönderebilirsiniz, ⬇️\n\n"
+        "ve o sizin için şarkıyı getirip indirecektir. 🚀"
     )
     await message.reply(text, reply_markup=keyboard)
 
@@ -1203,14 +1203,14 @@ async def pause_handler(client, message):
     chat_id = message.chat.id
 
     if not await deterministic_privilege_validator(message):
-        await message.reply("❌ You need to be an admin to use this command.")
+        await message.reply("❌ Bu komutu kullanmak için yönetici olmanız gerekiyor.")
         return
 
     try:
         await call_py.pause(chat_id)
-        await message.reply("⏸ Paused the stream.")
+        await message.reply("⏸ Akış duraklatıldı.")
     except Exception as e:
-        await message.reply(f"❌ Failed to pause the stream.\nError: {str(e)}")
+        await message.reply(f"❌ Akış duraklatılamadı.\nHata: {str(e)}")
 
 
 @bot.on_message(filters.group & filters.command("resume"))
@@ -1218,14 +1218,14 @@ async def resume_handler(client, message):
     chat_id = message.chat.id
 
     if not await deterministic_privilege_validator(message):
-        await message.reply("❌ You need to be an admin to use this command.")
+        await message.reply("❌ Bu komutu kullanmak için yönetici olmanız gerekiyor.")
         return
 
     try:
         await call_py.resume(chat_id)
-        await message.reply("▶️ Resumed the stream.")
+        await message.reply("▶️ Akış devam ettirildi.")
     except Exception as e:
-        await message.reply(f"❌ Failed to resume the stream.\nError: {str(e)}")
+        await message.reply(f"❌ Akış devam ettirilemedi.\nHata: {str(e)}")
 
 
 
@@ -1234,13 +1234,13 @@ async def skip_handler(client, message):
     chat_id = message.chat.id
 
     if not await deterministic_privilege_validator(message):
-        await message.reply("❌ You need to be an admin to use this command.")
+        await message.reply("❌ Bu komutu kullanmak için yönetici olmanız gerekiyor.")
         return
 
-    status_message = await message.reply("⏩ Skipping the current song...")
+    status_message = await message.reply("⏩ Geçerli şarkı geçiliyor...")
 
     if chat_id not in chat_containers or not chat_containers[chat_id]:
-        await status_message.edit("❌ No songs in the queue to skip.")
+        await status_message.edit("❌ Geçilecek şarkı yok.")
         return
 
     # Remove the current song from the queue
@@ -1264,11 +1264,11 @@ async def skip_handler(client, message):
     # Check for next song
     if not chat_containers.get(chat_id):
         await status_message.edit(
-            f"⏩ Skipped **{skipped_song['title']}**.\n\n😔 No more songs in the queue."
+            f"⏩ **{skipped_song['title']}** geçildi.\n\n😔 Sırada başka şarkı yok."
         )
     else:
         await status_message.edit(
-            f"⏩ Skipped **{skipped_song['title']}**.\n\n💕 Playing the next song..."
+            f"⏩ **{skipped_song['title']}** geçildi.\n\n💕 Sonraki şarkı çalınıyor..."
         )
         await skip_to_next_song(chat_id, status_message)
 
@@ -1312,9 +1312,9 @@ async def reboot_handler(_, message):
         except Exception as e:
             print(f"Error leaving call for chat {chat_id}: {e}")
 
-        await message.reply("♻️ Rebooted for this chat. All data for this chat has been cleared.")
+        await message.reply("♻️ Bu sohbet için yeniden başlatıldı. Bu sohbet için tüm veriler temizlendi.")
     except Exception as e:
-        await message.reply(f"❌ Failed to reboot for this chat. Error: {str(e)}\n\n support - @frozensupport1")
+        await message.reply(f"❌ Bu sohbet için yeniden başlatılamadı. Hata: {str(e)}\n\n destek - @frozensupport1")
 
 
 
@@ -1336,16 +1336,16 @@ async def ping_handler(_, message):
         # Build the final message
         response = (
             f"🏓 **Pong!**\n\n"
-            f"**Local Server Stats:**\n"
-            f"• **Uptime:** `{uptime_str}`\n"
-            f"• **CPU Usage:** `{cpu_usage}%`\n"
-            f"• **RAM Usage:** `{ram_usage}`\n"
-            f"• **Disk Usage:** `{disk_usage}`"
+            f"**Yerel Sunucu İstatistikleri:**\n"
+            f"• **Çalışma Süresi:** `{uptime_str}`\n"
+            f"• **CPU Kullanımı:** `{cpu_usage}%`\n"
+            f"• **RAM Kullanımı:** `{ram_usage}`\n"
+            f"• **Disk Kullanımı:** `{disk_usage}`"
         )
 
         await message.reply(response)
     except Exception as e:
-        await message.reply(f"❌ Failed to execute the command.\nError: {str(e)}\n\nSupport: @frozensupport1")
+        await message.reply(f"❌ Komut çalıştırılamadı.\nHata: {str(e)}\n\nDestek: @frozensupport1")
 
 
 
@@ -1363,16 +1363,16 @@ async def clear_handler(_, message):
                 print(f"Error deleting file: {e}")
         
         chat_containers.pop(chat_id)
-        await message.reply("🗑️ Cleared the queue.")
+        await message.reply("🗑️ Sıra temizlendi.")
     else:
-        await message.reply("❌ No songs in the queue to clear.")
+        await message.reply("❌ Temizlenecek şarkı yok.")
 
 
 @bot.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
 async def broadcast_handler(_, message):
     # Ensure the command is used in reply to a message
     if not message.reply_to_message:
-        await message.reply("❌ Please reply to the message you want to broadcast.")
+        await message.reply("❌ Lütfen yayınlamak istediğiniz mesaja yanıt verin.")
         return
 
     broadcast_message = message.reply_to_message
@@ -1406,13 +1406,13 @@ async def broadcast_handler(_, message):
         # Wait for 1 second to avoid flooding the server and Telegram
         await asyncio.sleep(1)
 
-    await message.reply(f"Broadcast complete!\n✅ Success: {success}\n❌ Failed: {failed}")
+    await message.reply(f"Yayın tamamlandı!\n✅ Başarılı: {success}\n❌ Başarısız: {failed}")
 
 
 
 @bot.on_message(filters.command("frozen_check"))
 async def frozen_check_command(client: Client, message):
-    await message.reply_text("frozen check successful ✨")
+    await message.reply_text("frozen kontrolü başarılı ✨")
 
 
 
@@ -1464,7 +1464,7 @@ async def heartbeat():
             # Notify channel before restart
             pre_msg = None
             try:
-                pre_msg = await bot.send_message(RESTART_CHANNEL_ID, "⚡ Bot is restarting (scheduled heartbeat)")
+                pre_msg = await bot.send_message(RESTART_CHANNEL_ID, "⚡ Bot yeniden başlatılıyor (planlı heartbeat)")
             except Exception as e:
                 logger.warning(f"Failed to notify channel about restart: {e}")
 
@@ -1537,7 +1537,3 @@ if __name__ == "__main__":
         logger.warning(f"Bot stop failed or already stopped: {e}")
 
     logger.info("✅ All services are up and running. Bot started successfully.")
-
-
-
-
